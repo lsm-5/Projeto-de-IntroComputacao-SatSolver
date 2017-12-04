@@ -1,10 +1,15 @@
-var fs = require('fs');
-
 exports.solve = function(fileName) {
     let formula = propsat.readFormula(fileName);
-    let result = doSolve(formula.clauses, formula.variables);
-    return result // two fields: isSat and satisfyingAssignment
-};
+    if (formula==1){
+        console.log('Programa encerrado')
+    }else{
+        formula.variables = nextAssignment(formula.variables,0);
+        let quantidade = formula.variables.length-1;
+        let resultado = doSolve(quantidade,formula.clauses,formula.variables);
+        return result;
+    }
+
+}
 
 // Receives the current assignment and produces the next one
 function nextAssignment(currentAssignment, contador) {
@@ -12,6 +17,7 @@ function nextAssignment(currentAssignment, contador) {
     let newAssignment = [];
     let resultado = "";
     resultado = metodobinario(contador,0);
+
     if (resultado<currentAssignment.length){
         let diferenca = currentAssignment.length - resultado.length;
         for(i=0;i<diferenca;i++){
@@ -39,34 +45,77 @@ function metodobinario(a,r) {
     } else {
         var q = parseInt(a/2);
         r = parseInt(a%2);
-
         mensagem2 = metodobinario (q, r) + r.toString();
         return mensagem2;
     }
 }
 
-function doSolve(clauses, assignment) {
-
+function doSolve(variables,clauses, assignment) {
+    let clausulaatual="";
+    let numero=0;
+    let contador = (Math.pow(2,variables))-1;
+    let i=0;
     let isSat = false;
-    while ((!isSat) && /* must check whether this is the last assignment or not*/) {
-        // does this assignment satisfy the formula? If so, make isSat true.
+    let permission = true;
+    while(i<clauses.length&&permission==true){
+        isSat=false; //ele está aqui por conta dos casos que estão tudo certo, e no final está errado, portanto o isSat "reseta" aqui.
+        for (j=0;j<clauses[i].length;j++) {
+            if (clauses[i].charAt(j) > '0' && clauses[i].charAt(j + 1) == ' ') {
+                numero = numero + clauses[i].charAt(j);
+                numero = parseInt(numero);
+                clausulaatual = clausulaatual + assignment[numero - 1]+" ";
+                numero = 0;
+            }else if (clauses[i].charAt(j) == '-') {
+                clausulaatual = clausulaatual + '-';
+            }else if (clauses[i].charAt(j) == ' '||clauses[i].charAt(j) == '0'){
 
-        // if not, get the next assignment and try again.
-        assignment = nextAssignment(assignment)
+            } else {
+                numero = numero + clauses[i].charAt(j);
+            }
+        }
+        let a = "";
+        a = a+clausulaatual.replace('-false','X');
+        a = a+clausulaatual.replace('-true','a');
+        a = a+clausulaatual.replace('true','X');
+        a = a+clausulaatual.replace('false','a');
+        let z =0;
+        for(z=0;z<a.length;z++){
+            if((a.charAt(z)=='X'&&a.charAt(z-1)==' ')||(a.charAt(z)=='X'&&a.charAt(z-1)=='')){
+                isSat = true;
+                break;
+            }
+        }
+        clausulaatual="";
+        a="";
+        if (isSat==false){
+            assignment = nextAssignment(assignment,contador);
+            i = 0;
+            contador--;
+            if(contador==-2){
+                permission = false;
+            }
+        } else {
+            if(contador==-2) {
+                permission = false;
+            }
+            i++;
+        }
     }
     let result = {'isSat': isSat, satisfyingAssignment: null};
     if (isSat) {
         result.satisfyingAssignment = assignment
     }
     return result
+
 }
 
 function readFormula(fileName) {
+    var fs = require('fs');
     var contents = fs.readFileSync('./fileName.cnf').toString();
     let text = contents.split('\n');
     let clauses = readClauses(text);
     let qvariables = readVariables(clauses);
-    let variables = [];
+    let variables = []; //pseudo array pra ser testado
     let specOk = checkProblemSpecification(text, clauses, variables);
     let result = { 'clauses': [], 'variables': [] };
     if (specOk == true) {
@@ -77,20 +126,24 @@ function readFormula(fileName) {
         result.variables = variables;
     } else {
         console.log("Este arquivo apresenta erro de compatibilidade")
+        return 1;
     }
     return result
 }
 
 function readClauses(text) {
     var j = text.length;
-    var mensagem = [];
+    var mensagem = "";
     for (i = 0; i <j; i++) {
         if (text[i].charAt(0) == 'c' || text[i].charAt(0) == 'p') {
         } else {
-            mensagem = mensagem.concat(text[i]);
+            mensagem = mensagem+text[i];
         }
     }
-    return mensagem;
+    let mensagem2 = [];
+    mensagem2 = mensagem.split('0');
+    mensagem2.pop();
+    return mensagem2;
 }
 
 function readVariables(clauses) {
