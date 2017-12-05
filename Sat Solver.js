@@ -60,7 +60,7 @@ function doSolve(clauses, assignment) {
     while(i<clauses.length&&permission==true){
         isSat=false; //ele está aqui por conta dos casos que estão tudo certo, e no final está errado, portanto o isSat "reseta" aqui.
         for (j=0;j<clauses[i].length;j++) {
-            if (clauses[i].charAt(j) > '0' && (clauses[i].charAt(j + 1) == ' '||clauses[i].charAt(j + 1) == '')) {
+            if (clauses[i].charAt(j) > '0' && (clauses[i].charAt(j + 1) == ' '||clauses[i].charAt(j + 1) == ''||clauses[i].charAt(j + 1) == '\r' )) {
                 numero = numero + clauses[i].charAt(j);
                 numero = parseInt(numero);
                 clausulaatual = clausulaatual + assignment[numero - 1]+" ";
@@ -147,7 +147,7 @@ function readVariables(clauses) {
     let comparar="";
     for(i=0;i<clauses.length;i++){
         for(j=0;j<clauses[i].length;j++) {
-            if((clauses[i].charAt(j)>='0'&& clauses[i].charAt(j)<='9') && (clauses[i].charAt(j+1)==' '||clauses[i].charAt(j+1)=='')){
+            if((clauses[i].charAt(j)>='0'&& clauses[i].charAt(j)<='9') && (clauses[i].charAt(j+1)==' '||clauses[i].charAt(j+1)==''||clauses[i].charAt(j+1)==='\r')){
                 comparar =  comparar+clauses[i].charAt(j);
                 comparar = parseInt(comparar);
                 if(comparar>=contador){
