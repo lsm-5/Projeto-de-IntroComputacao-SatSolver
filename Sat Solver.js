@@ -1,17 +1,17 @@
-var leia = require('fs');
 exports.solve = function(fileName) {
     let formula = readFormula(fileName);
     if (formula==1){
         console.log('Programa encerrado')
     }else{
-        formula.variables = nextAssignment(formula.variables,0);
+        contador = 0;
+        formula.variables = nextAssignment(formula.variables);
         let resultado = doSolve(formula.clauses,formula.variables);
         return resultado;
 
     }
 
 }
-function nextAssignment(currentAssignment, contador) {
+function nextAssignment(currentAssignment) {
     //contador é o numero maximo de possibilidades;
     let newAssignment = [];
     let resultado = "";
@@ -53,7 +53,7 @@ function doSolve(clauses, assignment) {
     let variables = assignment.length;
     let clausulaatual="";
     let numero=0;
-    let contador = (Math.pow(2,variables))-1;
+    contador = (Math.pow(2,variables))-1;
     let i=0;
     let isSat = false;
     let permission = true;
@@ -108,6 +108,7 @@ function doSolve(clauses, assignment) {
 
 }
 function readFormula(fileName) {
+    leia = require('fs');
     var lido = leia.readFileSync(fileName).toString();
     let text = lido.split('\n');
     let clauses = readClauses(text);
