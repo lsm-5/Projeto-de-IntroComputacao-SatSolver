@@ -1,12 +1,14 @@
+var fs = require('fs');
 exports.solve = function(fileName) {
-    let formula = propsat.readFormula(fileName);
+    let formula = readFormula(fileName);
     if (formula==1){
         console.log('Programa encerrado')
     }else{
         formula.variables = nextAssignment(formula.variables,0);
-        let quantidade = formula.variables.length-1;
+        let quantidade = formula.variables.length;
         let resultado = doSolve(quantidade,formula.clauses,formula.variables);
-        return result;
+        return resultado;
+
     }
 
 }
@@ -30,6 +32,9 @@ function nextAssignment(currentAssignment, contador) {
         } else {
             newAssignment[i] = 'true';
         }
+    }
+    if (contador%1000000 == 0) {
+        console.log(contador)
     }
     return newAssignment
 }
@@ -60,14 +65,14 @@ function doSolve(variables,clauses, assignment) {
     while(i<clauses.length&&permission==true){
         isSat=false; //ele está aqui por conta dos casos que estão tudo certo, e no final está errado, portanto o isSat "reseta" aqui.
         for (j=0;j<clauses[i].length;j++) {
-            if (clauses[i].charAt(j) > '0' && clauses[i].charAt(j + 1) == ' ') {
+            if (clauses[i].charAt(j) > '0' && (clauses[i].charAt(j + 1) == ' '||clauses[i].charAt(j + 1) == '')) {
                 numero = numero + clauses[i].charAt(j);
                 numero = parseInt(numero);
                 clausulaatual = clausulaatual + assignment[numero - 1]+" ";
                 numero = 0;
             }else if (clauses[i].charAt(j) == '-') {
                 clausulaatual = clausulaatual + '-';
-            }else if (clauses[i].charAt(j) == ' '||clauses[i].charAt(j) == '0'){
+            }else if (clauses[i].charAt(j) == ' '||clauses[i].charAt(j) == '0' ||clauses[i].charAt(j) == '\r'){
 
             } else {
                 numero = numero + clauses[i].charAt(j);
@@ -75,9 +80,7 @@ function doSolve(variables,clauses, assignment) {
         }
         let a = "";
         a = a+clausulaatual.replace('-false','X');
-        a = a+clausulaatual.replace('-true','a');
         a = a+clausulaatual.replace('true','X');
-        a = a+clausulaatual.replace('false','a');
         let z =0;
         for(z=0;z<a.length;z++){
             if((a.charAt(z)=='X'&&a.charAt(z-1)==' ')||(a.charAt(z)=='X'&&a.charAt(z-1)=='')){
@@ -102,7 +105,7 @@ function doSolve(variables,clauses, assignment) {
         }
     }
     let result = {'isSat': isSat, satisfyingAssignment: null};
-    if (isSat) {
+    if (isSat==true) {
         result.satisfyingAssignment = assignment
     }
     return result
@@ -110,13 +113,12 @@ function doSolve(variables,clauses, assignment) {
 }
 
 function readFormula(fileName) {
-    var fs = require('fs');
-    var contents = fs.readFileSync('./fileName.cnf').toString();
+    var contents = fs.readFileSync(fileName).toString();
     let text = contents.split('\n');
     let clauses = readClauses(text);
     let qvariables = readVariables(clauses);
     let variables = []; //pseudo array pra ser testado
-    let specOk = checkProblemSpecification(text, clauses, variables);
+    let specOk = checkProblemSpecification(text, clauses, qvariables);
     let result = { 'clauses': [], 'variables': [] };
     if (specOk == true) {
         result.clauses = clauses;
@@ -137,11 +139,11 @@ function readClauses(text) {
     for (i = 0; i <j; i++) {
         if (text[i].charAt(0) == 'c' || text[i].charAt(0) == 'p') {
         } else {
-            mensagem = mensagem+text[i];
+            mensagem = mensagem+' '+text[i];
         }
     }
     let mensagem2 = [];
-    mensagem2 = mensagem.split('0');
+    mensagem2 = mensagem.split(' 0');
     mensagem2.pop();
     return mensagem2;
 }
@@ -151,14 +153,14 @@ function readVariables(clauses) {
     let comparar="";
     for(i=0;i<clauses.length;i++){
         for(j=0;j<clauses[i].length;j++) {
-            if((clauses[i].charAt(j)>='0'||clauses[i].charAt(j)<='9') && clauses[i].charAt(j+1)==' '){
+            if((clauses[i].charAt(j)>='0'&& clauses[i].charAt(j)<='9') && (clauses[i].charAt(j+1)==' '||clauses[i].charAt(j+1)=='')){
                 comparar =  comparar+clauses[i].charAt(j);
                 comparar = parseInt(comparar);
                 if(comparar>=contador){
                     contador = comparar;
                 }
                 comparar = "";
-            } else if (clauses[i].charAt(j)>='0'||clauses[i].charAt(j)<='9'){
+            } else if (clauses[i].charAt(j)>='0'&&clauses[i].charAt(j)<='9'){
                 comparar = comparar+clauses[i].charAt(j);
             }
         }
