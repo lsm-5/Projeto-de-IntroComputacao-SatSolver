@@ -5,8 +5,7 @@ exports.solve = function(fileName) {
         console.log('Programa encerrado')
     }else{
         formula.variables = nextAssignment(formula.variables,0);
-        let quantidade = formula.variables.length;
-        let resultado = doSolve(quantidade,formula.clauses,formula.variables);
+        let resultado = doSolve(formula.clauses,formula.variables);
         return resultado;
 
     }
@@ -50,7 +49,8 @@ function metodobinario(a,r) {
         return mensagem2;
     }
 }
-function doSolve(variables,clauses, assignment) {
+function doSolve(clauses, assignment) {
+    let variables = assignment.length;
     let clausulaatual="";
     let numero=0;
     let contador = (Math.pow(2,variables))-1;
@@ -89,6 +89,7 @@ function doSolve(variables,clauses, assignment) {
             assignment = nextAssignment(assignment,contador);
             i = 0;
             contador--;
+
             if(contador==-2){
                 permission = false;
             }
@@ -168,7 +169,7 @@ function checkProblemSpecification(text, clauses, variables) {
     let achoup=false;
     for (i = 0; i < text.length; i++) {
         if (text[i].charAt(0) == 'p') {
-             achoup = true;
+            achoup = true;
             for (j = 0; j < text[i].length && permission==true; j++) {
                 if (text[i].charAt(j) >='0' && text[i].charAt(j) <= '9') {
                     //quantidade de variaveis em String
