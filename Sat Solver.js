@@ -1,4 +1,4 @@
-var fs = require('fs');
+var leia = require('fs');
 exports.solve = function(fileName) {
     let formula = readFormula(fileName);
     if (formula==1){
@@ -12,8 +12,6 @@ exports.solve = function(fileName) {
     }
 
 }
-
-// Receives the current assignment and produces the next one
 function nextAssignment(currentAssignment, contador) {
     //contador é o numero maximo de possibilidades;
     let newAssignment = [];
@@ -33,9 +31,7 @@ function nextAssignment(currentAssignment, contador) {
             newAssignment[i] = 'true';
         }
     }
-    if (contador%1000000 == 0) {
-        console.log(contador)
-    }
+
     return newAssignment
 }
 function metodobinario(a,r) {
@@ -54,7 +50,6 @@ function metodobinario(a,r) {
         return mensagem2;
     }
 }
-
 function doSolve(variables,clauses, assignment) {
     let clausulaatual="";
     let numero=0;
@@ -111,10 +106,9 @@ function doSolve(variables,clauses, assignment) {
     return result
 
 }
-
 function readFormula(fileName) {
-    var contents = fs.readFileSync(fileName).toString();
-    let text = contents.split('\n');
+    var lido = leia.readFileSync(fileName).toString();
+    let text = lido.split('\n');
     let clauses = readClauses(text);
     let qvariables = readVariables(clauses);
     let variables = []; //pseudo array pra ser testado
@@ -132,7 +126,6 @@ function readFormula(fileName) {
     }
     return result
 }
-
 function readClauses(text) {
     var j = text.length;
     var mensagem = "";
@@ -147,7 +140,6 @@ function readClauses(text) {
     mensagem2.pop();
     return mensagem2;
 }
-
 function readVariables(clauses) {
     let contador = 0;
     let comparar="";
@@ -167,15 +159,16 @@ function readVariables(clauses) {
     }
     return contador;
 }
-
 function checkProblemSpecification(text, clauses, variables) {
     let quantidadeVS="";
     let quantidadeCS="";
     let resultado;
     let permission = true;
     let h = 0;
+    let achoup=false;
     for (i = 0; i < text.length; i++) {
         if (text[i].charAt(0) == 'p') {
+             achoup = true;
             for (j = 0; j < text[i].length && permission==true; j++) {
                 if (text[i].charAt(j) >='0' && text[i].charAt(j) <= '9') {
                     //quantidade de variaveis em String
@@ -197,7 +190,9 @@ function checkProblemSpecification(text, clauses, variables) {
 
     quantidadeCS = parseInt(quantidadeCS);
     quantidadeVS = parseInt(quantidadeVS);
-    if (clauses.length == quantidadeCS && variables==quantidadeVS){
+    if (clauses.length == quantidadeCS && variables==quantidadeVS && achoup == true) {
+        resultado = true;
+    }else if (achoup==false){
         resultado = true;
     } else {
         resultado = false;
