@@ -86,15 +86,15 @@ function doSolve(clauses, assignment) {
         clausulaatual="";
         a="";
         if (isSat==false){
-            assignment = nextAssignment(assignment,contador);
+            assignment = nextAssignment(assignment);
             i = 0;
             contador--;
 
-            if(contador==-2){
+            if(contador===-1){
                 permission = false;
             }
         } else {
-            if(contador==-2) {
+            if(contador===-1) {
                 permission = false;
             }
             i++;
